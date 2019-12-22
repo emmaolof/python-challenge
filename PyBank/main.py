@@ -2,80 +2,62 @@
 import csv
 
 # Files to Load
-file_to_load = "budget_data.csv"
+csvpath= ('budget_data.csv')
 
+# Set the average
+def avg(nums):
+        total=0
+        for num in nums:
+            total+=num
+        return round(total/len(nums),2)
 
+        # Read Files    
+with open(csvpath,'r',newline='') as csvfile:
+    csvreader=csv.reader(csvfile, delimiter=',')
+    csvheader=next(csvreader)
 
-# Variables to Track
-total_months = 0
-total_revenue = 0
+# assign a change list, and define variables
+    changes=[]
+    totalamount=0
+    totalmonths=0
+    change_max=0
+    change_min=0
+    change_max_month=''
+    change_min_month=''
+    initialpl=0
+    initialmonth=''
+    for row in csvreader:
+        if initialmonth !='':
+            change=int(row[1])-initialpl
+            changes.append(change)
+            if change>change_max:
+                change_max=change
+                change_max_month=row[0]
+            if change<change_min:
+                change_min=change
+                change_min_month=row[0]
+        initialpl=int(row[1])
+        initialmonth=row[0]
+        totalamount+=int(row[1])
+        totalmonths+=1
+    avgchange=avg(changes)
 
-prev_revenue = 0
-revenue_change = 0
-greatest_increase = ["", 0]
-greatest_decrease = ["", 9999999999999999999999]
-
-revenue_changes = []
-
-# Read Files
-with open(file_to_load) as revenue_data:
-    reader = csv.DictReader(revenue_data)
-
-    # Loop through all the rows of data we collect
-    for row in reader:
-
-        # Calculate the totals
-        total_months = total_months + 1
-        total_revenue = total_revenue + int(row["Revenue"])
-        # print(row)
-
-        # Keep track of changes
-        revenue_change = int(row["Revenue"]) - prev_revenue
-        # print(revenue_change)
-
-        # Reset the value of prev_revenue to the row I completed my analysis
-        prev_revenue = int(row["Revenue"])
-        # print(prev_revenue)
-
-        # Determine the greatest increase
-        if (revenue_change > greatest_increase[1]):
-            greatest_increase[1] = revenue_change
-            greatest_increase[0] = row["Date"]
-
-        if (revenue_change < greatest_decrease[1]):
-            greatest_decrease[1] = revenue_change
-            greatest_decrease[0] = row["Date"]
-
-        # Add to the revenue_changes list
-        revenue_changes.append(int(row["Revenue"]))
-
-    # Set the Revenue average
-    revenue_avg = sum(revenue_changes) / len(revenue_changes)
-    
-    # Show Output
-    print()
-    print()
-    print()
+# print analysis 
     print("Financial Analysis")
     print("-------------------------")
-    print("Total Months: " + str(total_months))
-    print("Total Revenue: " + "$" + str(total_revenue))
-    print("Average Change: " + "$" + str(round(sum(revenue_changes) / len(revenue_changes),2)))
-    print("Greatest Increase: " + str(greatest_increase[0]) + " ($" +  str(greatest_increase[1]) + ")") 
-    print("Greatest Decrease: " + str(greatest_decrease[0]) + " ($" +  str(greatest_decrease[1]) + ")")
-    
-
+    print(f"Total Months: {totalmonths}")
+    print(f"Total: ${totalamount}")
+    print(f"Average Change :${avgchange}")
+    print(f"Greatest Increase in Profits: ${change_max} in {change_max_month}")
+    print(f"Greatest Decrease in Profits: ${change_min} in {change_min_month}")
 
 # Output Files
-with open(file_to_output, "w") as txt_file:
-    txt_file.write("Total Months: " + str(total_months))
-    txt_file.write("\n")
-    txt_file.write("Total Revenue: " + "$" + str(total_revenue))
-    txt_file.write("\n")
-    txt_file.write("Average Change: " + "$" + str(round(sum(revenue_changes) / len(revenue_changes),2)))
-    txt_file.write("\n")
-    txt_file.write("Greatest Increase: " + str(greatest_increase[0]) + " ($" + str(greatest_increase[1]) + ")") 
-    txt_file.write("\n")
-    txt_file.write("Greatest Decrease: " + str(greatest_decrea
-    
-    
+    with open('budget_analysis.txt', 'w', newline='') as file:
+        file.write("Financial Analysis\n")
+        file.write("-------------------------\n")
+
+        file.write("Total Months: " + str(totalmonths)+"\n")
+        file.write("Total: $" + str(totalamount)+"\n")
+        file.write("Average Change: $" + str(avgchange)+"\n")
+        file.write("Greatest Increase in Profits: $" + str(change_max) + " in " + change_max_month + "\n")
+        file.write("Greatest Decrease in Profits: $" + str(change_min) + " in " + change_min_month + "\n")
